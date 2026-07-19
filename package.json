@@ -1,0 +1,57 @@
+{
+  "name": "expo-monorepo-starter",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @starter/mobile-app dev",
+    "ios": "pnpm --filter @starter/mobile-app ios",
+    "android": "pnpm --filter @starter/mobile-app android",
+    "web": "pnpm --filter @starter/mobile-app web",
+    "export:web": "pnpm --filter @starter/mobile-app export:web",
+    "build": "turbo run build",
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "lint": "pnpm lint:root && turbo run lint",
+    "lint:root": "eslint eslint.config.mjs prettier.config.mjs scripts --max-warnings=0",
+    "typecheck": "turbo run typecheck",
+    "test": "pnpm test:packages && pnpm test:app",
+    "test:app": "pnpm --filter @starter/mobile-app test",
+    "test:packages": "turbo run test --filter='./packages/*'",
+    "test:watch": "pnpm --filter @starter/mobile-app test:watch",
+    "test:coverage": "pnpm test:coverage:packages && pnpm test:coverage:app",
+    "test:coverage:app": "pnpm --filter @starter/mobile-app test:coverage",
+    "test:coverage:packages": "turbo run test:coverage --filter='./packages/*'",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "node scripts/clean.mjs",
+    "expo:doctor": "pnpm --filter @starter/mobile-app exec expo-doctor",
+    "expo:config": "pnpm --filter @starter/mobile-app exec expo config --type public",
+    "check": "pnpm format:check && pnpm build:packages && pnpm lint && pnpm typecheck && pnpm test && pnpm expo:config",
+    "setup": "node scripts/initialize-template.mjs"
+  },
+  "devDependencies": {
+    "@types/jest": "29.5.14",
+    "@jest/transform": "29.7.0",
+    "@jest/types": "29.6.3",
+    "babel-jest": "29.7.0",
+    "eslint": "9.39.5",
+    "eslint-config-expo": "57.0.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-turbo": "2.10.5",
+    "globals": "17.7.0",
+    "jest": "29.7.0",
+    "jest-util": "29.7.0",
+    "prettier": "3.9.5",
+    "ts-jest": "29.4.11",
+    "turbo": "2.10.5",
+    "typescript": "~6.0.3"
+  },
+  "packageManager": "pnpm@10.11.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "unrs-resolver"
+    ],
+    "overrides": {
+      "xcode>uuid": "11.1.1"
+    }
+  }
+}

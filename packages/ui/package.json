@@ -1,0 +1,38 @@
+{
+  "name": "@starter/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --runInBand",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage --runInBand"
+  },
+  "dependencies": {
+    "@starter/theme": "workspace:*",
+    "@starter/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
+    "react-native-unistyles": ">=3.3.0"
+  },
+  "devDependencies": {
+    "@testing-library/react-native": "14.0.1",
+    "@types/react": "~19.2.2",
+    "expo": "~57.0.7",
+    "jest-expo": "57.0.2",
+    "jest": "29.7.0",
+    "react": "19.2.3",
+    "react-native": "0.86.0",
+    "react-native-nitro-modules": "0.36.1",
+    "react-native-reanimated": "4.5.0",
+    "react-native-unistyles": "3.3.0",
+    "test-renderer": "1.2.0"
+  }
+}

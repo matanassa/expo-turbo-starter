@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality and Expo health
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up workspace
+        uses: ./.github/actions/setup
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Build shared packages
+        run: pnpm build:packages
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type-check
+        run: pnpm typecheck
+
+      - name: Resolve Expo config
+        run: pnpm expo:config
+
+      - name: Check Expo project health
+        run: pnpm expo:doctor
+
+      - name: Export web app
+        run: pnpm export:web
+
+      - name: Audit dependencies
+        run: pnpm audit --audit-level high
+
+  package-tests:
+    name: Shared package tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up workspace
+        uses: ./.github/actions/setup
+
+      - name: Build shared packages
+        run: pnpm build:packages
+
+      - name: Run shared package Jest suites
+        run: pnpm test:packages
+
+  app-tests:
+    name: App tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up workspace
+        uses: ./.github/actions/setup
+
+      - name: Build shared packages
+        run: pnpm build:packages
+
+      - name: Run app Jest suite
+        run: pnpm test:app
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          license-check: true
+          deny-licenses: AGPL-1.0-only, AGPL-1.0-or-later, AGPL-3.0-only, AGPL-3.0-or-later, GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, GPL-3.0-or-later
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan Git history
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

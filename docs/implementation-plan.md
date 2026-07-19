@@ -1,11 +1,16 @@
 # Expo Monorepo Starter: Implementation Plan
 
+> **Implementation status (July 19, 2026):** The repository, packages, app, Jest suites,
+> initializer, CI, and open-source documentation are implemented and locally validated. The
+> GitHub-only publication steps—adding a remote, enabling **Template repository**, and creating the
+> first tagged release—remain pending until a destination repository exists.
+
 ## 1. Goal
 
 Create an open-source GitHub template for starting a production-shaped Expo monorepo without
 bringing along product-specific infrastructure.
 
-The starter will borrow the proven boundaries from `matto-brew`:
+The starter will borrow proven boundaries from a production Expo application:
 
 - a pnpm workspace orchestrated by Turborepo;
 - one Expo Router app under `apps/mobile-app`;
@@ -14,8 +19,9 @@ The starter will borrow the proven boundaries from `matto-brew`:
 - root commands for development and quality checks; and
 - tests and CI that validate both shared packages and their app consumer.
 
-It will not be a public copy of Matto Brew. All Matto branding, business logic, credentials,
-service integrations, release-train automation, and domain-specific components must be excluded.
+It will be a clean, product-neutral extraction. All source-app branding, business logic,
+credentials, service integrations, release-train automation, and domain-specific components must
+be excluded.
 
 ## 2. Recommended product decision
 
@@ -50,8 +56,8 @@ chooses a real npm scope and release policy.
 - Authentication, databases, APIs, analytics, push notifications, payments, maps, or other product
   integrations.
 - Additional apps such as Storybook, a separate web app, infrastructure, or back-office tools.
-- Domain packages such as Brew's `data`, `firestore`, and business `helpers` packages.
-- Matto fonts, colors, icons, copy, certificates, Firebase files, EAS project IDs, bundle IDs, or
+- Domain packages such as application `data`, persistence, and business-helper packages.
+- Product fonts, colors, icons, copy, certificates, Firebase files, EAS project IDs, bundle IDs, or
   package scopes.
 - Generated `ios/` and `android/` directories. The starter will use Expo Continuous Native
   Generation.
@@ -246,8 +252,10 @@ The template initializer will replace those values. No secret should be required
 - Pin a supported Node LTS version and an exact pnpm version.
 - Use `apps/*` and `packages/*` workspace globs.
 - Use `workspace:*` for all internal dependencies.
-- Start with pnpm's hoisted linker for broad Expo/Jest/native-tool compatibility, and document the
-  choice in `.npmrc`.
+- Use pnpm's isolated linker and declare Jest runtime dependencies explicitly in each workspace.
+  A clean SDK 57 verification found that the hoisted layout could pair Jest 29's
+  `write-file-atomic` with an incompatible `signal-exit` major, while the isolated layout preserves
+  each package's dependency graph.
 - Let Expo's current `expo/metro-config` perform automatic monorepo detection. Do not copy Brew's
   legacy `watchFolders`, `nodeModulesPaths`, or `disableHierarchicalLookup` overrides unless a
   verified dependency still requires them.
@@ -280,11 +288,11 @@ pnpm typecheck        Type-check all workspaces
 pnpm test             Run all tests
 pnpm test:app         Run the mobile app Jest suite
 pnpm test:packages    Run the theme, UI, and utils Jest suites
-pnpm test:watch       Run affected Jest suites in watch mode
+pnpm test:watch       Run the app Jest suite in watch mode
 pnpm test:coverage    Produce per-workspace Jest coverage reports
 pnpm check            Run build:packages, lint, typecheck, and test
 pnpm clean            Remove generated caches/build output only
-pnpm setup            Customize a fresh template copy
+pnpm run setup        Customize a fresh template copy
 ```
 
 Turborepo tasks should declare package builds as dependencies of app typechecking and tests where
@@ -317,6 +325,10 @@ In CI, run package Jest suites and the app Jest suite as separate parallel jobs 
 install/build step. Do not copy Brew's multi-shard app setup into the small starter suite; add Jest
 sharding only when measured test duration justifies it.
 
+Run those two groups sequentially from the root `pnpm test` command. A clean SDK 57 verification
+found that launching both React Native Jest runtimes concurrently could stall on local machines;
+the dedicated CI jobs retain safe cross-job parallelism.
+
 ## 8. Implementation phases
 
 ### Phase 1: Repository foundation
@@ -333,7 +345,7 @@ Acceptance criteria:
 - a clean install succeeds from the repository root;
 - Turbo discovers the app and all three packages;
 - the app starts without custom legacy Metro resolution; and
-- no file contains Matto-specific names or credentials.
+- no file contains source-product names or credentials.
 
 ### Phase 2: Theme package
 
@@ -400,11 +412,12 @@ Acceptance criteria:
 - CI passes from a clean checkout;
 - contributors can run the project by following only the README;
 - dependency licenses are compatible with the repository license; and
-- secret scanning and a case-insensitive search find no Matto identifiers or private endpoints.
+- secret scanning and a case-insensitive search find no source-product identifiers or private
+  endpoints.
 
 ### Phase 7: Template initialization and release
 
-1. Add an idempotent `pnpm setup` script that asks for repository name, npm scope, display name,
+1. Add an idempotent `pnpm run setup` script that asks for repository name, npm scope, display name,
    slug, scheme, iOS bundle ID, and Android package.
 2. Validate inputs before editing and print the exact files changed.
 3. Remove or mark template-only setup instructions after successful initialization.
@@ -441,15 +454,15 @@ burdens.
 
 The final implementation should prove each boundary independently:
 
-| Area | Required checks |
-| --- | --- |
-| Root | frozen-lockfile install, Turbo graph, formatting, secret/name scrub |
-| Theme | typecheck, Jest token contract tests, light/dark key parity |
-| UI | typecheck, Jest component tests, accessibility states, app consumer smoke |
-| Utils | Node typecheck and Jest unit tests with no React Native runtime |
-| App | lint, typecheck, Jest + React Native Testing Library smoke tests, `expo config`, Expo Doctor |
-| Platforms | iOS development build, Android development build, web export/start smoke |
-| Template | initialize a clean copy, reinstall, run `pnpm check` |
+| Area      | Required checks                                                                              |
+| --------- | -------------------------------------------------------------------------------------------- |
+| Root      | frozen-lockfile install, Turbo graph, formatting, secret/name scrub                          |
+| Theme     | typecheck, Jest token contract tests, light/dark key parity                                  |
+| UI        | typecheck, Jest component tests, accessibility states, app consumer smoke                    |
+| Utils     | Node typecheck and Jest unit tests with no React Native runtime                              |
+| App       | lint, typecheck, Jest + React Native Testing Library smoke tests, `expo config`, Expo Doctor |
+| Platforms | iOS development build, Android development build, web export/start smoke                     |
+| Template  | initialize a clean copy, reinstall, run `pnpm check`                                         |
 
 ## 11. Definition of done
 

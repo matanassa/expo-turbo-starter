@@ -1,0 +1,36 @@
+name: Feature request
+description: Propose a generic capability for the starter
+title: '[Feature]: '
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What starter-repository problem would this solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the smallest generic solution and its package boundary.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What can users do today, and why is that insufficient?
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Starter fit
+      options:
+        - label: This is broadly useful and does not require product-specific services or branding.
+          required: true
+        - label: I searched existing issues and pull requests.
+          required: true

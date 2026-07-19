@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Expo documentation
+    url: https://docs.expo.dev/
+    about: Check Expo's documentation for framework and platform questions.
+  - name: Expo discussions
+    url: https://github.com/expo/expo/discussions
+    about: Ask general Expo questions that are not specific to this starter.
