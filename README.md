@@ -117,6 +117,10 @@ Non-secret Expo values live in `apps/mobile-app/app.config.ts` with local fallba
 `.env.example` to `.env` when you need overrides, and add `EAS_PROJECT_ID` only after creating an EAS
 project.
 
+Want package versions and changelogs? Changesets is not installed by default, but
+[docs/adding-changesets.md](docs/adding-changesets.md) walks through the private-package and npm
+publishing setups.
+
 Found a rough edge or have a useful idea? Read [CONTRIBUTING.md](CONTRIBUTING.md) and open an issue or
 pull request. Please report security problems through [SECURITY.md](SECURITY.md), not a public issue.
 
