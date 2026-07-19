@@ -1,4 +1,4 @@
-# Expo Monorepo Starter
+# Expo Turbo Starter
 
 ## Workspace
 

@@ -1,46 +1,28 @@
-# Expo Monorepo Starter
+# Expo Turbo Starter
 
-An open-source starter for building Expo applications in a small, typed pnpm monorepo. It ships
-with one Expo Router app and three intentionally narrow workspace packages:
+> The boring monorepo wiring is done. Build the interesting part.
 
-- `@starter/theme` for semantic light/dark design tokens;
-- `@starter/ui` for accessible React Native primitives styled with Unistyles;
-- `@starter/utils` for portable TypeScript utilities; and
-- `@starter/mobile-app` as the example app and native configuration owner.
+Most Expo ideas start with the same few hours of work: set up the workspace, make Metro happy,
+wire in a theme, add tests, and teach CI how to run it all. This repo skips that part.
 
-The starter targets Expo SDK 57, React Native 0.86, pnpm 10, TypeScript, Turborepo, Jest, and React
-Native Testing Library. Workspace packages are consumed from source, so package edits appear in
-Metro without a manual build.
+It gives you one Expo Router app, three small shared packages, and enough guardrails to keep the
+boundaries honest. Auth, data fetching, analytics, and every other product decision are left to you.
 
-## Architecture
+## What is in the box
 
-```text
-apps/
-  mobile-app/
-    src/app/          Thin Expo Router route files
-    src/screens/      App-owned screens and behavior
-    src/theme/        App-owned Unistyles registration
-packages/
-  theme/              Tokens and typed light/dark themes
-  ui/                 Shared React Native components
-  utils/              Runtime-independent TypeScript helpers
-```
+- `apps/mobile-app` — the Expo app, routes, screens, and native configuration
+- `packages/theme` — semantic light and dark tokens
+- `packages/ui` — accessible React Native building blocks styled with Unistyles
+- `packages/utils` — plain TypeScript helpers with no React Native dependency
+- Jest, React Native Testing Library, ESLint, Prettier, Turborepo, and GitHub Actions
 
-Dependencies point toward the app:
+The starter targets Expo SDK 57, React Native 0.86, Node 24, and pnpm 10. Workspace packages are
+consumed from source, so editing a button does not require a separate package build before Metro can
+see it.
 
-```text
-theme ─┐
-       ├─> ui ─> mobile-app
-utils ─┘       └> mobile-app
-```
+## Get moving
 
-Shared packages never import application source. Consumers import public package entrypoints and
-never reach into another workspace's `src` directory.
-
-## Create a project from the template
-
-Use GitHub's **Use this template** action (once enabled on your fork), or clone/copy the repository.
-Then customize the placeholders before installing dependencies:
+Start from GitHub's **Use this template** button, or clone the repository, then run:
 
 ```sh
 pnpm run setup
@@ -49,8 +31,8 @@ pnpm check
 pnpm ios
 ```
 
-The interactive setup asks for the repository/package scope and Expo application identifiers. It
-is idempotent and can also run non-interactively:
+The setup script asks for your package scope, app name, URL scheme, and native identifiers. It can
+also run without prompts:
 
 ```sh
 pnpm run setup --yes \
@@ -63,92 +45,79 @@ pnpm run setup --yes \
   --android-package com.acme.mobile
 ```
 
-Run `pnpm run setup --help` for every option. Commit the generated `.template-initialized.json`
-file;
-it records the non-secret values selected for the project.
+Commit the generated `.template-initialized.json` file. It is a receipt for the non-secret choices
+made during setup, and running the command again with the same values is safe.
 
-## Requirements
+## The one rule that matters
 
-- Node 24 (see `.nvmrc`)
-- pnpm 10.11.1 (pinned in `package.json`)
-- Xcode for iOS native builds
-- Android Studio and an Android SDK for Android native builds
+Dependencies point toward the app:
 
-With Corepack available, activate the pinned pnpm version with `corepack enable`, then run
-`corepack install` from the repository root.
+```text
+theme ─┐
+       ├─> ui ─> mobile-app
+utils ─┘       └> mobile-app
+```
 
-Unistyles includes native code, so use the development build created by `pnpm ios` or
-`pnpm android`; the app is not intended to run in Expo Go. See the
-[Unistyles Expo guide](https://www.unistyl.es/v3/start/getting-started/).
+Shared packages do not import app code, and consumers use package entrypoints instead of reaching
+into another workspace's `src` directory. Route files stay thin; screen bodies live in `src/screens`.
 
-## Commands
+That is most of the architecture. The reasoning and tradeoffs are in
+[docs/architecture.md](docs/architecture.md).
 
-| Command               | Purpose                                          |
-| --------------------- | ------------------------------------------------ |
-| `pnpm dev`            | Start Metro for the installed development client |
-| `pnpm ios`            | Build and run the iOS app                        |
-| `pnpm android`        | Build and run the Android app                    |
-| `pnpm web`            | Start the web app                                |
-| `pnpm export:web`     | Produce a static web export                      |
-| `pnpm build:packages` | Validate all shared package build boundaries     |
-| `pnpm lint`           | Lint every workspace                             |
-| `pnpm typecheck`      | Type-check every workspace                       |
-| `pnpm test`           | Run all Jest suites                              |
-| `pnpm test:packages`  | Run theme, UI, and utils Jest suites             |
-| `pnpm test:app`       | Run the application Jest suite                   |
-| `pnpm test:watch`     | Watch the application Jest suite                 |
-| `pnpm test:coverage`  | Write per-workspace coverage reports             |
-| `pnpm expo:doctor`    | Check Expo dependencies and project health       |
-| `pnpm expo:config`    | Resolve the public Expo configuration            |
-| `pnpm check`          | Run the complete local quality gate              |
-| `pnpm clean`          | Remove generated caches, builds, and coverage    |
+## Commands you will actually use
 
-## Configuration
+| Command              | What it does                                      |
+| -------------------- | ------------------------------------------------- |
+| `pnpm dev`           | Start Metro for the development client            |
+| `pnpm ios`           | Build and run the iOS app                         |
+| `pnpm android`       | Build and run the Android app                     |
+| `pnpm web`           | Start the web app                                 |
+| `pnpm test`          | Run every Jest suite                              |
+| `pnpm test:watch`    | Watch the app Jest suite                          |
+| `pnpm test:coverage` | Write coverage reports for every workspace        |
+| `pnpm lint`          | Lint every workspace                              |
+| `pnpm typecheck`     | Type-check every workspace                        |
+| `pnpm check`         | Run the same core quality gate used before a push |
+| `pnpm expo:doctor`   | Check Expo dependencies and project health        |
+| `pnpm export:web`    | Produce a static web export                       |
+| `pnpm clean`         | Remove generated caches, builds, and coverage     |
 
-`apps/mobile-app/app.config.ts` reads non-secret values from the environment and has safe local
-fallbacks. Copy `.env.example` to `.env` only when you need to override them. Never commit secrets
-or service credentials.
+Run commands from the repository root. Node and pnpm versions are pinned in `.nvmrc` and
+`package.json`; with Corepack installed, `corepack enable && corepack install` selects the right
+pnpm version.
 
-`EAS_PROJECT_ID` is optional. Add it after creating an EAS project; local development and validation
-do not require an Expo account.
+## A note about Expo Go
 
-Expo SDK 52 and newer configure Metro automatically for pnpm monorepos, so this starter does not
-carry legacy `watchFolders` or module-resolution overrides. See Expo's
-[monorepo guide](https://docs.expo.dev/guides/monorepos/).
+The UI package uses Unistyles, which includes native code. Use the development build created by
+`pnpm ios` or `pnpm android`; this starter is not an Expo Go project. See the
+[Unistyles Expo guide](https://www.unistyl.es/v3/start/getting-started/) if you are new to that
+workflow.
+
+Expo handles pnpm monorepos without legacy Metro overrides, so there is no custom `watchFolders`
+configuration hiding in the repo. The [Expo monorepo guide](https://docs.expo.dev/guides/monorepos/)
+has the details.
 
 ## Testing
 
-Jest is configured per workspace so packages remain independently testable:
+Tests live beside the code they exercise as `*.test.ts` or `*.test.tsx`:
 
-- theme and utils use `ts-jest` in a Node environment;
-- UI uses `jest-expo`, React Native Testing Library, and the Unistyles test mock; and
-- the app uses `jest-expo` for consumer-level screen tests.
+- theme and utils run in a Node environment with `ts-jest`
+- UI and app tests use `jest-expo` and React Native Testing Library
+- CI keeps package tests and app tests separate, so failures are easy to place
 
-Colocate focused `*.test.ts` or `*.test.tsx` files with the code they exercise. Prefer rendered
-behavior and accessibility assertions over implementation details and snapshots. The CI workflow
-runs shared-package and app suites as separate jobs.
+Prefer behavior and accessibility assertions over snapshots. If you change Expo dependencies or
+configuration, run both `pnpm expo:doctor` and `pnpm export:web` before opening a pull request.
 
-## Add another package
+## Make it yours
 
-1. Create `packages/<name>/package.json` with the current npm scope, `private: true`, and an export
-   for `./src/index.ts`.
-2. Extend `tsconfig.base.json` from the package's `tsconfig.json`.
-3. Add `build`, `lint`, `typecheck`, `test`, `test:watch`, and `test:coverage` scripts.
-4. Reference internal dependencies with `workspace:*` and import only their public entrypoints.
-5. Add package tests, then run `pnpm install` and `pnpm check`.
+The starter is deliberately missing authentication, an API client, state management, analytics,
+and a folder full of pretend product code. Add those when your app asks for them.
 
-## Add another app
+Non-secret Expo values live in `apps/mobile-app/app.config.ts` with local fallbacks. Copy
+`.env.example` to `.env` when you need overrides, and add `EAS_PROJECT_ID` only after creating an EAS
+project.
 
-1. Scaffold the app under `apps/<name>` with an Expo template compatible with the repository SDK.
-2. Give it a scoped workspace name and add internal packages with `workspace:*`.
-3. Keep routes thin and register its Unistyles themes from app-owned startup code.
-4. Add app-specific Jest, Babel, Expo, and EAS configuration.
-5. Add root convenience scripts only when the app is a common target, then run `pnpm check` and
-   `pnpm expo:doctor`.
+Found a rough edge or have a useful idea? Read [CONTRIBUTING.md](CONTRIBUTING.md) and open an issue or
+pull request. Please report security problems through [SECURITY.md](SECURITY.md), not a public issue.
 
-## Contributing and security
-
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
-Report vulnerabilities using [SECURITY.md](SECURITY.md), not a public issue.
-
-This project is available under the [MIT License](LICENSE).
+MIT licensed. Go make something good.

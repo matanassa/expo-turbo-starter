@@ -1,16 +1,14 @@
 # Contributing
 
-Thanks for helping improve the Expo Monorepo Starter.
+Found a rough edge? Great. A starter gets better when people try to build real things with it.
 
-## Before you start
+Small fixes can go straight to a pull request. If you want to change a package boundary, add a major
+dependency, or make a product choice for everyone using the template, open an issue first so we can
+talk through the tradeoff.
 
-- Search existing issues and pull requests before opening a duplicate.
-- Keep changes focused and avoid product-specific services or branding in the starter.
-- For larger architectural changes, open a discussion or feature request before implementation.
+## Work on the repo
 
-## Local development
-
-Use the repository's pinned Node and pnpm versions, then install from the lockfile:
+Use the pinned Node and pnpm versions, then install from the lockfile:
 
 ```sh
 corepack enable
@@ -19,28 +17,24 @@ pnpm install --frozen-lockfile
 pnpm check
 ```
 
-Use `pnpm ios`, `pnpm android`, or `pnpm web` to exercise app changes. Because Unistyles uses native
-code, native changes must be checked in a development build rather than Expo Go.
+Use `pnpm ios`, `pnpm android`, or `pnpm web` to try app changes. Unistyles contains native code, so
+check native work in a development build rather than Expo Go.
 
-## Tests
-
-Add or update a colocated Jest test for behavior changes. Tests should describe observable behavior,
-including accessibility and error states for interactive UI. Run the smallest relevant suite while
-developing, followed by `pnpm check` before submitting the pull request.
-
-Dependency or Expo configuration changes also require:
+Tests belong beside the behavior they cover. Run the smallest useful Jest suite while working, then
+run `pnpm check` before you send the change. Dependency or Expo configuration changes also need:
 
 ```sh
 pnpm expo:doctor
 pnpm export:web
 ```
 
-## Pull requests
+## Send a useful pull request
 
-- Explain the problem and the chosen solution.
-- Link related issues.
-- Include screenshots or recordings for visual changes.
-- Call out any native rebuild, migration, or follow-up requirement.
-- Keep the lockfile in sync with manifest changes.
+Tell us what felt wrong and why your change makes it better. Add screenshots for visual work, keep
+the lockfile in sync, and mention anything that requires a native rebuild or migration. Focused pull
+requests are much easier to understand and merge.
 
-By contributing, you agree that your contributions are licensed under the repository's MIT License.
+Please keep product-specific services and branding out of the starter. The goal is a strong place to
+begin, not a demo app everyone has to dismantle.
+
+Contributions are licensed under the repository's MIT License.

@@ -1,10 +1,10 @@
 import type { ExpoConfig } from 'expo/config';
 
-const appName = process.env.APP_NAME ?? 'Expo Monorepo Starter';
-const appSlug = process.env.APP_SLUG ?? 'expo-monorepo-starter';
-const appScheme = process.env.APP_SCHEME ?? 'expo-monorepo-starter';
-const iosBundleIdentifier = process.env.IOS_BUNDLE_IDENTIFIER ?? 'com.example.expomonorepostarter';
-const androidPackage = process.env.ANDROID_PACKAGE ?? 'com.example.expomonorepostarter';
+const appName = process.env.APP_NAME ?? 'Expo Turbo Starter';
+const appSlug = process.env.APP_SLUG ?? 'expo-turbo-starter';
+const appScheme = process.env.APP_SCHEME ?? 'expo-turbo-starter';
+const iosBundleIdentifier = process.env.IOS_BUNDLE_IDENTIFIER ?? 'com.example.expoturbostarter';
+const androidPackage = process.env.ANDROID_PACKAGE ?? 'com.example.expoturbostarter';
 const easProjectId = process.env.EAS_PROJECT_ID;
 
 const config: ExpoConfig = {

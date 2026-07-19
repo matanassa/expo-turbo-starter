@@ -14,41 +14,33 @@ export function HomeScreen() {
     <Screen>
       <View style={{ gap: theme.space.sm }}>
         <Text selectable variant="display">
-          Expo Monorepo Starter
+          Expo Turbo Starter
         </Text>
         <Text selectable style={{ color: theme.colors.mutedText }}>
-          One Expo app, a shared design system, and a clean place for portable utilities.
+          The boring wiring is done. Go build the interesting part.
         </Text>
       </View>
 
       <Card elevated>
-        <Text variant="title">Workspace integration</Text>
+        <Text variant="title">Four packages, one happy Metro</Text>
         <Text selectable style={{ color: theme.colors.mutedText }}>
-          This screen is rendered from the app with components and tokens provided by workspace
+          This screen lives in the app. The button, theme, and clamp helper all come from shared
           packages.
         </Text>
         <Text selectable variant="label">
-          Count: {count}
+          Tiny proof: {count}/10
         </Text>
-        <Button
-          label="Increment demo count"
-          onPress={() => setCount((value) => clamp(value + 1, 0, 10))}
-        />
+        <Button label="Add one" onPress={() => setCount((value) => clamp(value + 1, 0, 10))} />
       </Card>
 
-      <FormField hint="This is starter UI only; no data is submitted." label="Email address">
-        <TextInput
-          accessibilityLabel="Email address"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          placeholder="name@example.com"
-        />
+      <FormField hint="Just a UI example. Nothing leaves your device." label="Name your next app">
+        <TextInput accessibilityLabel="Name your next app" placeholder="Coffee Run" />
       </FormField>
 
       <Link asChild href="/about">
         <Pressable style={{ alignSelf: 'flex-start', padding: theme.space.sm }}>
           <Text style={{ color: theme.colors.primary }} variant="label">
-            Explore the package boundaries
+            Why this structure?
           </Text>
         </Pressable>
       </Link>
