@@ -75,6 +75,7 @@ That is most of the architecture. The reasoning and tradeoffs are in
 | `pnpm test`          | Run every Jest suite                              |
 | `pnpm test:watch`    | Watch the app Jest suite                          |
 | `pnpm test:coverage` | Write coverage reports for every workspace        |
+| `pnpm generate`      | Generate a shared package                         |
 | `pnpm lint`          | Lint every workspace                              |
 | `pnpm typecheck`     | Type-check every workspace                        |
 | `pnpm check`         | Run the same core quality gate used before a push |
@@ -96,6 +97,28 @@ workflow.
 Expo handles pnpm monorepos without legacy Metro overrides, so there is no custom `watchFolders`
 configuration hiding in the repo. The [Expo monorepo guide](https://docs.expo.dev/guides/monorepos/)
 has the details.
+
+## Grow the workspace
+
+Generate a plain TypeScript package:
+
+```sh
+pnpm generate package analytics
+```
+
+Or generate a package prepared for React Native code and `jest-expo` tests:
+
+```sh
+pnpm generate package maps --kind react-native
+```
+
+The generator reads the current workspace scope, so an initialized `@acme` repo creates
+`@acme/analytics` rather than leaking the starter scope. It creates the package manifest,
+TypeScript and Jest configuration, public entrypoint, and a colocated starter test. It never runs
+`pnpm install` and refuses to touch an existing directory.
+
+After generating a package, run `pnpm install`, replace the todo test with its first real behavior,
+and finish with `pnpm check`. Run `pnpm generate --help` for the available options.
 
 ## Testing
 

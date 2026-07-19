@@ -13,9 +13,10 @@
     "lint": "pnpm lint:root && turbo run lint",
     "lint:root": "eslint eslint.config.mjs prettier.config.mjs scripts --max-warnings=0",
     "typecheck": "turbo run typecheck",
-    "test": "pnpm test:packages && pnpm test:app",
+    "test": "pnpm test:scripts && pnpm test:packages && pnpm test:app",
     "test:app": "pnpm --filter @starter/mobile-app test",
     "test:packages": "turbo run test --filter='./packages/*'",
+    "test:scripts": "node --test scripts/*.test.mjs",
     "test:watch": "pnpm --filter @starter/mobile-app test:watch",
     "test:coverage": "pnpm test:coverage:packages && pnpm test:coverage:app",
     "test:coverage:app": "pnpm --filter @starter/mobile-app test:coverage",
@@ -26,7 +27,8 @@
     "expo:doctor": "pnpm --filter @starter/mobile-app exec expo-doctor",
     "expo:config": "pnpm --filter @starter/mobile-app exec expo config --type public",
     "check": "pnpm format:check && pnpm build:packages && pnpm lint && pnpm typecheck && pnpm test && pnpm expo:config",
-    "setup": "node scripts/initialize-template.mjs"
+    "setup": "node scripts/initialize-template.mjs",
+    "generate": "node scripts/generate.mjs"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",

@@ -8,6 +8,8 @@
 - The Expo Router app lives in `apps/mobile-app`.
 - Shared packages are `packages/theme`, `packages/ui`, and `packages/utils`.
 - Internal imports use package entrypoints and `workspace:*`; packages never import app source.
+- Create shared package boilerplate with `pnpm generate package <name>`; use
+  `--kind react-native` only for packages that need React Native or Expo APIs.
 
 ## Structure
 

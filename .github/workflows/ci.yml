@@ -60,6 +60,9 @@ jobs:
       - name: Build shared packages
         run: pnpm build:packages
 
+      - name: Run generator tests
+        run: pnpm test:scripts
+
       - name: Run shared package Jest suites
         run: pnpm test:packages
 

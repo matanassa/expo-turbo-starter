@@ -60,9 +60,9 @@ tell you where to start looking.
 
 ## Adding to the workspace
 
-For a package, copy the shape of the nearest existing package, use `workspace:*` for internal
-dependencies, export only the public entrypoint, and give it its own build, lint, typecheck, and test
-scripts.
+For a package, start with `pnpm generate package <name>`. Use the `react-native` kind only when the
+package needs React Native or Expo APIs. Add internal dependencies with `workspace:*` and export only
+the public entrypoint.
 
 For another app, keep its routes and theme registration app-owned. Add app-specific Expo, Babel,
 Jest, and EAS configuration rather than teaching shared packages about a particular consumer.
