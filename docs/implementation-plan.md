@@ -278,6 +278,10 @@ pnpm build:packages   Validate/build theme, UI, and utils
 pnpm lint             Lint all workspaces
 pnpm typecheck        Type-check all workspaces
 pnpm test             Run all tests
+pnpm test:app         Run the mobile app Jest suite
+pnpm test:packages    Run the theme, UI, and utils Jest suites
+pnpm test:watch       Run affected Jest suites in watch mode
+pnpm test:coverage    Produce per-workspace Jest coverage reports
 pnpm check            Run build:packages, lint, typecheck, and test
 pnpm clean            Remove generated caches/build output only
 pnpm setup            Customize a fresh template copy
@@ -286,6 +290,32 @@ pnpm setup            Customize a fresh template copy
 Turborepo tasks should declare package builds as dependencies of app typechecking and tests where
 compiled output is involved. Development tasks remain uncached and persistent; lint and typecheck
 produce no cached output.
+
+### Jest testing strategy
+
+Jest is the required test runner across the entire repository. Keep a small Jest configuration in
+each workspace so every package can be tested independently, while Turborepo makes the root
+commands run them together.
+
+- `apps/mobile-app` uses `jest-expo` and React Native Testing Library for routes, screens, and app
+  integration tests.
+- `packages/ui` uses `jest-expo` and React Native Testing Library, with test setup that initializes
+  or mocks Unistyles before importing components.
+- `packages/theme` and `packages/utils` use Jest's Node environment with a TypeScript transform;
+  they must not load an Expo or React Native runtime merely to test plain values and functions.
+- Tests are colocated as `*.test.ts` or `*.test.tsx` beside their source files.
+- Prefer user-observable rendering and interaction assertions over component internals and large
+  snapshots.
+- Use module-specifier setup imports that work with pnpm's workspace layout; do not hardcode paths
+  into a particular `node_modules` directory.
+- Keep coverage reports and thresholds per workspace. Start with meaningful thresholds supported
+  by the initial suite and raise them as the starter grows rather than adding placeholder tests.
+- The app suite must run when `theme`, `ui`, or `utils` changes because package tests alone do not
+  prove that Metro, Babel, module exports, and the app consumer still agree.
+
+In CI, run package Jest suites and the app Jest suite as separate parallel jobs after the shared
+install/build step. Do not copy Brew's multi-shard app setup into the small starter suite; add Jest
+sharding only when measured test duration justifies it.
 
 ## 8. Implementation phases
 
@@ -296,6 +326,7 @@ produce no cached output.
 3. Add root scripts and a single naming convention for all workspaces.
 4. Scaffold the Expo app at `apps/mobile-app` using the explicit current SDK template.
 5. Remove template demo code that does not belong in the final architecture.
+6. Add the workspace-level Jest configuration and root test orchestration.
 
 Acceptance criteria:
 
@@ -358,8 +389,8 @@ Acceptance criteria:
 
 ### Phase 6: CI and open-source hygiene
 
-1. Add CI for install, package build, lint, typecheck, tests, Expo Doctor, and Expo config
-   validation.
+1. Add CI for install, package build, lint, typecheck, Jest package tests, Jest app tests, Expo
+   Doctor, and Expo config validation. Run the two Jest jobs in parallel.
 2. Add README setup, architecture, common commands, and "add another app/package" guides.
 3. Add MIT `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, issue forms, and a PR template.
 4. Add dependency/license review and a secret scan.
@@ -413,10 +444,10 @@ The final implementation should prove each boundary independently:
 | Area | Required checks |
 | --- | --- |
 | Root | frozen-lockfile install, Turbo graph, formatting, secret/name scrub |
-| Theme | typecheck, token contract tests, light/dark key parity |
-| UI | typecheck, component tests, accessibility states, app consumer smoke |
-| Utils | Node typecheck and unit tests with no React Native runtime |
-| App | lint, typecheck, Jest smoke test, `expo config`, Expo Doctor |
+| Theme | typecheck, Jest token contract tests, light/dark key parity |
+| UI | typecheck, Jest component tests, accessibility states, app consumer smoke |
+| Utils | Node typecheck and Jest unit tests with no React Native runtime |
+| App | lint, typecheck, Jest + React Native Testing Library smoke tests, `expo config`, Expo Doctor |
 | Platforms | iOS development build, Android development build, web export/start smoke |
 | Template | initialize a clean copy, reinstall, run `pnpm check` |
 
