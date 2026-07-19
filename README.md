@@ -15,6 +15,7 @@ boundaries honest. Auth, data fetching, analytics, and every other product decis
 - `packages/ui` — accessible React Native building blocks styled with Unistyles
 - `packages/utils` — plain TypeScript helpers with no React Native dependency
 - Jest, React Native Testing Library, ESLint, Prettier, Turborepo, and GitHub Actions
+- A concise `AGENTS.md` that gives coding agents the same workspace rules
 
 The starter targets Expo SDK 57, React Native 0.86, Node 24, and pnpm 10. Workspace packages are
 consumed from source, so editing a button does not require a separate package build before Metro can
@@ -63,6 +64,15 @@ into another workspace's `src` directory. Route files stay thin; screen bodies l
 
 That is most of the architecture. The reasoning and tradeoffs are in
 [docs/architecture.md](docs/architecture.md).
+
+## Working with coding agents
+
+[`AGENTS.md`](AGENTS.md) is the short, canonical working agreement for coding agents: where code
+belongs, which commands to use, and what must pass before a change is done. Keep project truth there
+instead of copying the same instructions into a collection of tool-specific files.
+
+[docs/working-with-agents.md](docs/working-with-agents.md) explains how to prompt against this
+starter, review agent work, and adapt the instructions once the template becomes your product.
 
 ## Commands you will actually use
 
