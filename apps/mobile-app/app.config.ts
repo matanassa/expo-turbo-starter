@@ -1,11 +1,57 @@
 import type { ExpoConfig } from 'expo/config';
 
-const appName = process.env.APP_NAME ?? 'Expo Turbo Starter';
-const appSlug = process.env.APP_SLUG ?? 'expo-turbo-starter';
-const appScheme = process.env.APP_SCHEME ?? 'expo-turbo-starter';
-const iosBundleIdentifier = process.env.IOS_BUNDLE_IDENTIFIER ?? 'com.example.expoturbostarter';
-const androidPackage = process.env.ANDROID_PACKAGE ?? 'com.example.expoturbostarter';
-const easProjectId = process.env.EAS_PROJECT_ID;
+export type AppIdentity = {
+  androidPackage: string;
+  appName: string;
+  appScheme: string;
+  appSlug: string;
+  easProjectId: string | undefined;
+  iosBundleIdentifier: string;
+};
+
+type Environment = Readonly<Record<string, string | undefined>>;
+
+const defaults: AppIdentity = {
+  androidPackage: 'com.example.expoturbostarter',
+  appName: 'Expo Turbo Starter',
+  appScheme: 'expo-turbo-starter',
+  appSlug: 'expo-turbo-starter',
+  easProjectId: undefined,
+  iosBundleIdentifier: 'com.example.expoturbostarter',
+};
+
+export function resolveAppIdentity(environment: Environment): AppIdentity {
+  const identity = {
+    androidPackage: environment.ANDROID_PACKAGE ?? defaults.androidPackage,
+    appName: environment.APP_NAME ?? defaults.appName,
+    appScheme: environment.APP_SCHEME ?? defaults.appScheme,
+    appSlug: environment.APP_SLUG ?? defaults.appSlug,
+    easProjectId: environment.EAS_PROJECT_ID,
+    iosBundleIdentifier: environment.IOS_BUNDLE_IDENTIFIER ?? defaults.iosBundleIdentifier,
+  };
+
+  const isProductionBuild =
+    environment.APP_ENV === 'production' || environment.EAS_BUILD_PROFILE === 'production';
+
+  if (isProductionBuild && identity.iosBundleIdentifier.startsWith('com.example.')) {
+    throw new Error('Production builds require a non-placeholder IOS_BUNDLE_IDENTIFIER.');
+  }
+
+  if (isProductionBuild && identity.androidPackage.startsWith('com.example.')) {
+    throw new Error('Production builds require a non-placeholder ANDROID_PACKAGE.');
+  }
+
+  if (isProductionBuild && !identity.easProjectId) {
+    throw new Error(
+      'Production builds require EAS_PROJECT_ID. Run eas init and configure it first.'
+    );
+  }
+
+  return identity;
+}
+
+const { androidPackage, appName, appScheme, appSlug, easProjectId, iosBundleIdentifier } =
+  resolveAppIdentity(process.env);
 
 const config: ExpoConfig = {
   name: appName,
@@ -15,7 +61,6 @@ const config: ExpoConfig = {
   icon: './assets/images/icon.png',
   scheme: appScheme,
   userInterfaceStyle: 'automatic',
-  newArchEnabled: true,
   ios: {
     bundleIdentifier: iosBundleIdentifier,
     icon: './assets/expo.icon',
@@ -50,6 +95,14 @@ const config: ExpoConfig = {
     reactCompiler: true,
     typedRoutes: true,
   },
+  runtimeVersion: {
+    policy: 'fingerprint',
+  },
+  updates: easProjectId
+    ? {
+        url: `https://u.expo.dev/${easProjectId}`,
+      }
+    : undefined,
   extra: easProjectId
     ? {
         eas: {

@@ -26,7 +26,16 @@ run `pnpm check` before you send the change. Dependency or Expo configuration ch
 ```sh
 pnpm expo:doctor
 pnpm export:web
+pnpm check:workflows
 ```
+
+If you change the setup script or any starter-wide default, run `pnpm verify:template`. It creates a
+clean copy with different branding and package scope, installs from the lockfile, reruns setup to
+prove it is idempotent, and exercises the quality, Expo, web-export, and native-prebuild paths.
+
+Changes to native configuration or native dependencies trigger real Android and iOS compilation in
+the `Native build` workflow. Run that workflow manually when a native-impacting change falls outside
+its path filters.
 
 ## Send a useful pull request
 
@@ -36,5 +45,9 @@ requests are much easier to understand and merge.
 
 Please keep product-specific services and branding out of the starter. The goal is a strong place to
 begin, not a demo app everyone has to dismantle.
+
+Starter changes are recorded in `CHANGELOG.md`. Treat the root package version as the template
+version and bump it when a released change should be discoverable by existing projects. Describe
+the adoption steps in `docs/upgrading.md` whenever copying the change requires judgment or migration.
 
 Contributions are licensed under the repository's MIT License.

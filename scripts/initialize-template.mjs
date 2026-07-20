@@ -180,8 +180,8 @@ async function replaceInTextFiles(directory, replacements, changedFiles) {
   }
 }
 
-function replaceConfigFallback(source, environmentName, value) {
-  const expression = new RegExp(`(process\\.env\\.${environmentName} \\?\\? ')[^']+(')`);
+function replaceStringProperty(source, propertyName, value) {
+  const expression = new RegExp(`(${propertyName}: ')[^']+(')`);
   return source.replace(expression, `$1${value}$2`);
 }
 
@@ -230,16 +230,17 @@ await writeIfChanged(
   changedFiles
 );
 
-const appConfigPath = path.join(root, 'apps/mobile-app/app.config.ts');
-let appConfig = await readFile(appConfigPath, 'utf8');
-appConfig = replaceConfigFallback(appConfig, 'APP_NAME', values.appName);
-appConfig = replaceConfigFallback(appConfig, 'APP_SLUG', values.appSlug);
-appConfig = replaceConfigFallback(appConfig, 'APP_SCHEME', values.appScheme);
-appConfig = replaceConfigFallback(appConfig, 'IOS_BUNDLE_IDENTIFIER', values.iosBundleId);
-appConfig = replaceConfigFallback(appConfig, 'ANDROID_PACKAGE', values.androidPackage);
-await writeIfChanged(appConfigPath, appConfig, changedFiles);
+const appIdentityPath = path.join(root, 'apps/mobile-app/app.config.ts');
+let appIdentity = await readFile(appIdentityPath, 'utf8');
+appIdentity = replaceStringProperty(appIdentity, 'appName', values.appName);
+appIdentity = replaceStringProperty(appIdentity, 'appSlug', values.appSlug);
+appIdentity = replaceStringProperty(appIdentity, 'appScheme', values.appScheme);
+appIdentity = replaceStringProperty(appIdentity, 'iosBundleIdentifier', values.iosBundleId);
+appIdentity = replaceStringProperty(appIdentity, 'androidPackage', values.androidPackage);
+await writeIfChanged(appIdentityPath, appIdentity, changedFiles);
 
 const appNameFiles = [
+  'apps/mobile-app/.maestro/smoke.yml',
   'apps/mobile-app/src/screens/home/home-screen.tsx',
   'apps/mobile-app/src/screens/home/home-screen.test.tsx',
 ];
@@ -260,6 +261,7 @@ const nextEnvironment = [
   `APP_SCHEME=${values.appScheme}`,
   `IOS_BUNDLE_IDENTIFIER=${values.iosBundleId}`,
   `ANDROID_PACKAGE=${values.androidPackage}`,
+  '# APP_ENV=development',
   '# EAS_PROJECT_ID=',
   '',
 ].join('\n');
@@ -267,8 +269,17 @@ await writeIfChanged(environmentPath, nextEnvironment, changedFiles);
 
 const initializationRecordPath = path.join(root, '.template-initialized.json');
 const initializationRecord = `${JSON.stringify(
-  values,
-  ['repoName', 'scope', 'appName', 'appSlug', 'appScheme', 'iosBundleId', 'androidPackage'],
+  { templateVersion: rootPackage.version, ...values },
+  [
+    'templateVersion',
+    'repoName',
+    'scope',
+    'appName',
+    'appSlug',
+    'appScheme',
+    'iosBundleId',
+    'androidPackage',
+  ],
   2
 )}\n`;
 

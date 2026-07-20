@@ -1,0 +1,87 @@
+name: Native build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/actions/setup/**
+      - .github/workflows/native-build.yml
+      - apps/mobile-app/app.config.ts
+      - apps/mobile-app/assets/**
+      - apps/mobile-app/babel.config.js
+      - apps/mobile-app/eas.json
+      - apps/mobile-app/package.json
+      - package.json
+      - packages/ui/**
+      - pnpm-lock.yaml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android debug build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install Java
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up workspace
+        uses: ./.github/actions/setup
+
+      - name: Generate Android project
+        run: pnpm --filter @starter/mobile-app exec expo prebuild --platform android --no-install --clean
+
+      - name: Configure Gradle cache
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+
+      - name: Compile Android debug app
+        working-directory: apps/mobile-app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+  ios:
+    name: iOS simulator build
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up workspace
+        uses: ./.github/actions/setup
+
+      - name: Generate iOS project
+        run: pnpm --filter @starter/mobile-app exec expo prebuild --platform ios --no-install --clean
+
+      - name: Install CocoaPods
+        working-directory: apps/mobile-app/ios
+        run: pod install
+
+      - name: Compile iOS simulator app
+        working-directory: apps/mobile-app
+        shell: bash
+        run: |
+          workspace="$(find ios -maxdepth 1 -name '*.xcworkspace' -print -quit)"
+          scheme="$(xcodebuild -workspace "$workspace" -list -json | jq -r '.workspace.schemes[0]')"
+          test -n "$workspace"
+          test -n "$scheme"
+          xcodebuild \
+            -workspace "$workspace" \
+            -scheme "$scheme" \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build

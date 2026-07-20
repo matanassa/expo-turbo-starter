@@ -1,5 +1,11 @@
-import { Stack } from 'expo-router';
+import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+
+import { RootErrorScreen } from '@/screens/root-error';
+
+export function ErrorBoundary(props: ErrorBoundaryProps) {
+  return <RootErrorScreen {...props} />;
+}
 
 export default function RootLayout() {
   return (

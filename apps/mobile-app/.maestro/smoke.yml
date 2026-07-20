@@ -1,0 +1,8 @@
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp:
+    clearState: true
+- assertVisible: 'Expo Turbo Starter'
+- assertVisible: 'Tiny proof: 0/10'
+- tapOn: 'Add one'
+- assertVisible: 'Tiny proof: 1/10'

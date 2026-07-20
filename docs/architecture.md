@@ -19,6 +19,11 @@ Router files under `src/app` only connect a URL to a screen; the screen body bel
 The app is also the right home for choices that are not universal: authentication, API clients,
 state management, analytics, feature flags, and error reporting.
 
+The root Expo Router error boundary renders an app-owned recovery screen and reports through
+`src/observability/error-reporter.ts`. Its default implementation is deliberately a no-op. Configure
+that adapter when the product selects an observability vendor; keep vendor SDKs out of shared UI and
+avoid exposing raw error messages to users.
+
 ## Packages have one job
 
 `@starter/theme` contains semantic design tokens and the typed light and dark themes. It has no React
@@ -68,3 +73,5 @@ For another app, keep its routes and theme registration app-owned. Add app-speci
 Jest, and EAS configuration rather than teaching shared packages about a particular consumer.
 
 Then run `pnpm install`, `pnpm check`, and—for app or dependency changes—`pnpm expo:doctor`.
+Production app configuration also requires real native identifiers and an EAS project ID; the config
+fails closed instead of allowing a placeholder build to ship.
