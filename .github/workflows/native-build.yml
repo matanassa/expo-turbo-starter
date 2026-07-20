@@ -44,6 +44,9 @@ jobs:
       - name: Generate Android project
         run: pnpm --filter @starter/mobile-app exec expo prebuild --platform android --no-install --clean
 
+      - name: Configure Gradle cache
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
+
       - name: Compile Android debug app
         working-directory: apps/mobile-app/android
         run: ./gradlew assembleDebug --no-daemon
