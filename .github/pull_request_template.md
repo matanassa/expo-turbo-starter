@@ -7,6 +7,8 @@
 - [ ] `pnpm check`
 - [ ] `pnpm expo:doctor` for Expo or dependency changes
 - [ ] `pnpm export:web` for app or UI changes
+- [ ] `pnpm check:workflows` for EAS workflow changes
+- [ ] `pnpm verify:template` for initialization, identity, workspace, or toolchain changes
 - [ ] Native development build checked for native or UI changes
 
 ## Visual changes

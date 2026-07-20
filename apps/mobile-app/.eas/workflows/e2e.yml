@@ -1,0 +1,50 @@
+name: Native smoke tests
+
+on:
+  workflow_dispatch: {}
+
+defaults:
+  image: sdk-57
+
+jobs:
+  build_android:
+    name: Build Android test app
+    type: build
+    environment: preview
+    params:
+      platform: android
+      profile: e2e
+
+  test_android:
+    name: Test Android smoke path
+    needs: [build_android]
+    type: maestro
+    environment: preview
+    env:
+      MAESTRO_APP_ID: ${{ env.ANDROID_PACKAGE }}
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      flow_path: .maestro/smoke.yml
+      record_screen: true
+      retries: 1
+
+  build_ios:
+    name: Build iOS test app
+    type: build
+    environment: preview
+    params:
+      platform: ios
+      profile: e2e
+
+  test_ios:
+    name: Test iOS smoke path
+    needs: [build_ios]
+    type: maestro
+    environment: preview
+    env:
+      MAESTRO_APP_ID: ${{ env.IOS_BUNDLE_IDENTIFIER }}
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      flow_path: .maestro/smoke.yml
+      record_screen: true
+      retries: 1

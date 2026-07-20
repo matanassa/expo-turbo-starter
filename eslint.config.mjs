@@ -33,5 +33,41 @@ export default defineConfig([
       globals: globals.node,
     },
   },
+  {
+    files: ['packages/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@starter/*/*'],
+              message: 'Import another workspace package through its public entrypoint.',
+            },
+            {
+              group: ['@/**', '**/apps/**'],
+              message: 'Shared packages must not import application source.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['apps/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@starter/*/*'],
+              message: 'Import workspace packages through their public entrypoints.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   eslintConfigPrettier,
 ]);

@@ -1,0 +1,102 @@
+name: Production release
+
+on:
+  workflow_dispatch: {}
+
+defaults:
+  image: sdk-57
+
+jobs:
+  fingerprint:
+    name: Calculate native fingerprints
+    type: fingerprint
+    environment: production
+    env:
+      APP_ENV: production
+
+  get_android_build:
+    name: Find compatible Android build
+    needs: [fingerprint]
+    type: get-build
+    environment: production
+    params:
+      fingerprint_hash: ${{ needs.fingerprint.outputs.android_fingerprint_hash }}
+      platform: android
+      profile: production
+
+  get_ios_build:
+    name: Find compatible iOS build
+    needs: [fingerprint]
+    type: get-build
+    environment: production
+    params:
+      fingerprint_hash: ${{ needs.fingerprint.outputs.ios_fingerprint_hash }}
+      platform: ios
+      profile: production
+
+  approve_release:
+    name: Approve production delivery
+    after: [get_android_build, get_ios_build]
+    type: require-approval
+
+  build_android:
+    name: Build Android binary
+    needs: [get_android_build, approve_release]
+    if: ${{ !needs.get_android_build.outputs.build_id }}
+    type: build
+    environment: production
+    params:
+      platform: android
+      profile: production
+
+  build_ios:
+    name: Build iOS binary
+    needs: [get_ios_build, approve_release]
+    if: ${{ !needs.get_ios_build.outputs.build_id }}
+    type: build
+    environment: production
+    params:
+      platform: ios
+      profile: production
+
+  submit_android:
+    name: Submit Android binary
+    needs: [build_android]
+    type: submit
+    environment: production
+    params:
+      build_id: ${{ needs.build_android.outputs.build_id }}
+      profile: production
+
+  submit_ios:
+    name: Submit iOS binary
+    needs: [build_ios]
+    type: submit
+    environment: production
+    params:
+      build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: production
+
+  update_android:
+    name: Publish Android update
+    needs: [get_android_build, approve_release]
+    if: ${{ needs.get_android_build.outputs.build_id }}
+    type: update
+    environment: production
+    env:
+      APP_ENV: production
+    params:
+      branch: production
+      platform: android
+
+  update_ios:
+    name: Publish iOS update
+    needs: [get_ios_build, approve_release]
+    if: ${{ needs.get_ios_build.outputs.build_id }}
+    type: update
+    environment: production
+    env:
+      APP_ENV: production
+    params:
+      branch: production
+      platform: ios

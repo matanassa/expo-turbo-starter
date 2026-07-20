@@ -15,6 +15,8 @@ boundaries honest. Auth, data fetching, analytics, and every other product decis
 - `packages/ui` — accessible React Native building blocks styled with Unistyles
 - `packages/utils` — plain TypeScript helpers with no React Native dependency
 - Jest, React Native Testing Library, ESLint, Prettier, Turborepo, and GitHub Actions
+- A root recovery screen, provider-neutral error reporting seam, and production config guards
+- Manual-by-default EAS production delivery and native Maestro smoke workflows
 - A concise `AGENTS.md` that gives coding agents the same workspace rules
 
 The starter targets Expo SDK 57, React Native 0.86, Node 24, and pnpm 10. Workspace packages are
@@ -46,8 +48,8 @@ pnpm run setup --yes \
   --android-package com.acme.mobile
 ```
 
-Commit the generated `.template-initialized.json` file. It is a receipt for the non-secret choices
-made during setup, and running the command again with the same values is safe.
+Commit the generated `.template-initialized.json` file. It records the template version and the
+non-secret choices made during setup, and running the command again with the same values is safe.
 
 ## The one rule that matters
 
@@ -76,22 +78,24 @@ starter, review agent work, and adapt the instructions once the template becomes
 
 ## Commands you will actually use
 
-| Command              | What it does                                      |
-| -------------------- | ------------------------------------------------- |
-| `pnpm dev`           | Start Metro for the development client            |
-| `pnpm ios`           | Build and run the iOS app                         |
-| `pnpm android`       | Build and run the Android app                     |
-| `pnpm web`           | Start the web app                                 |
-| `pnpm test`          | Run every Jest suite                              |
-| `pnpm test:watch`    | Watch the app Jest suite                          |
-| `pnpm test:coverage` | Write coverage reports for every workspace        |
-| `pnpm generate`      | Generate a shared package                         |
-| `pnpm lint`          | Lint every workspace                              |
-| `pnpm typecheck`     | Type-check every workspace                        |
-| `pnpm check`         | Run the same core quality gate used before a push |
-| `pnpm expo:doctor`   | Check Expo dependencies and project health        |
-| `pnpm export:web`    | Produce a static web export                       |
-| `pnpm clean`         | Remove generated caches, builds, and coverage     |
+| Command                | What it does                                      |
+| ---------------------- | ------------------------------------------------- |
+| `pnpm dev`             | Start Metro for the development client            |
+| `pnpm ios`             | Build and run the iOS app                         |
+| `pnpm android`         | Build and run the Android app                     |
+| `pnpm web`             | Start the web app                                 |
+| `pnpm test`            | Run every Jest suite                              |
+| `pnpm test:watch`      | Watch the app Jest suite                          |
+| `pnpm test:coverage`   | Write coverage reports for every workspace        |
+| `pnpm generate`        | Generate a shared package                         |
+| `pnpm lint`            | Lint every workspace                              |
+| `pnpm typecheck`       | Type-check every workspace                        |
+| `pnpm check`           | Run the same core quality gate used before a push |
+| `pnpm expo:doctor`     | Check Expo dependencies and project health        |
+| `pnpm check:workflows` | Validate EAS YAML against Expo's live schema      |
+| `pnpm verify:template` | Exercise a clean, renamed template copy           |
+| `pnpm export:web`      | Produce a static web export                       |
+| `pnpm clean`           | Remove generated caches, builds, and coverage     |
 
 Run commands from the repository root. Node and pnpm versions are pinned in `.nvmrc` and
 `package.json`; with Corepack installed, `corepack enable && corepack install` selects the right
@@ -137,18 +141,30 @@ Tests live beside the code they exercise as `*.test.ts` or `*.test.tsx`:
 - theme and utils run in a Node environment with `ts-jest`
 - UI and app tests use `jest-expo` and React Native Testing Library
 - CI keeps package tests and app tests separate, so failures are easy to place
+- CI enforces coverage thresholds and exercises a freshly renamed template through native prebuild
+- native-impacting pull requests compile Android and iOS projects, not just JavaScript
 
 Prefer behavior and accessibility assertions over snapshots. If you change Expo dependencies or
 configuration, run both `pnpm expo:doctor` and `pnpm export:web` before opening a pull request.
 
 ## Make it yours
 
-The starter is deliberately missing authentication, an API client, state management, analytics,
-and a folder full of pretend product code. Add those when your app asks for them.
+The starter is deliberately missing authentication, an API client, state management, an analytics
+vendor, and a folder full of pretend product code. Add those when your app asks for them. The root
+error boundary reports through a small app-owned adapter so the eventual observability vendor does
+not leak into shared packages.
 
 Non-secret Expo values live in `apps/mobile-app/app.config.ts` with local fallbacks. Copy
 `.env.example` to `.env` when you need overrides, and add `EAS_PROJECT_ID` only after creating an EAS
 project.
+
+Before shipping, configure the EAS environments and release workflows described in
+[docs/releasing.md](docs/releasing.md). Production config refuses placeholder native identifiers or
+a missing EAS project ID. The workflows stay manual until a generated app is deliberately linked.
+
+This repository is versioned independently from generated apps. GitHub templates are one-time
+copies, so use [`CHANGELOG.md`](CHANGELOG.md) and [docs/upgrading.md](docs/upgrading.md) to carry
+future starter improvements into existing projects intentionally.
 
 Want package versions and changelogs? Changesets is not installed by default, but
 [docs/adding-changesets.md](docs/adding-changesets.md) walks through the private-package and npm

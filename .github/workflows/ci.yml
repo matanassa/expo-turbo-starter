@@ -18,7 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up workspace
         uses: ./.github/actions/setup
@@ -41,18 +43,23 @@ jobs:
       - name: Check Expo project health
         run: pnpm expo:doctor
 
+      - name: Validate EAS workflows
+        run: pnpm check:workflows
+
       - name: Export web app
         run: pnpm export:web
 
       - name: Audit dependencies
-        run: pnpm audit --audit-level high
+        run: pnpm audit --audit-level moderate
 
   package-tests:
     name: Shared package tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up workspace
         uses: ./.github/actions/setup
@@ -63,15 +70,17 @@ jobs:
       - name: Run generator tests
         run: pnpm test:scripts
 
-      - name: Run shared package Jest suites
-        run: pnpm test:packages
+      - name: Run shared package Jest suites with coverage
+        run: pnpm test:coverage:packages
 
   app-tests:
     name: App tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Set up workspace
         uses: ./.github/actions/setup
@@ -79,8 +88,23 @@ jobs:
       - name: Build shared packages
         run: pnpm build:packages
 
-      - name: Run app Jest suite
-        run: pnpm test:app
+      - name: Run app Jest suite with coverage
+        run: pnpm test:coverage:app
+
+  template-canary:
+    name: Generated template canary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up workspace
+        uses: ./.github/actions/setup
+
+      - name: Verify a freshly initialized project
+        run: pnpm verify:template
 
   dependency-review:
     name: Dependency review
@@ -90,10 +114,12 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          persist-credentials: false
 
       - name: Review dependency changes
-        uses: actions/dependency-review-action@v5
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: high
           license-check: true
@@ -106,11 +132,12 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Scan Git history
-        uses: gitleaks/gitleaks-action@v3
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

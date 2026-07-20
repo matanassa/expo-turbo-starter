@@ -14,6 +14,8 @@
 
 - Keep `apps/mobile-app/src/app` routes-only. Put screen bodies and behavior in `src/screens`.
 - The app owns native configuration, product decisions, and Unistyles registration.
+- EAS workflows live under `apps/mobile-app/.eas/workflows` and stay manual by default in the
+  unlinked template.
 - Shared UI may consume theme and utils, but must not configure global themes or import app code.
 - Utils stay runtime-independent. Do not add React or React Native dependencies there.
 - Colocate tests as `*.test.ts` or `*.test.tsx` and assert observable behavior over implementation
@@ -39,6 +41,8 @@
 - Documentation-only changes: run `pnpm format:check`.
 - Code changes: run `pnpm check`.
 - Dependency or Expo configuration changes: also run `pnpm expo:doctor` and `pnpm export:web`.
+- EAS workflow changes: also run `pnpm check:workflows`.
+- Initialization, identity, workspace, or toolchain changes: also run `pnpm verify:template`.
 - Generator changes: cover filesystem behavior with `pnpm test:scripts` and smoke-test both package
   kinds in a temporary workspace.
 - Report what was verified and call out anything that could not be run.
